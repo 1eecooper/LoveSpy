@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SkySpy</string>
+    <string name="app_name">LoveSpy</string>
     <string name="send_message_via_chooser">Send message via chooser</string>
     <string name="send_message_silently">Send message silently</string>
 </resources>
