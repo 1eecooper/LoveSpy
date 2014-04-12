@@ -8,11 +8,13 @@ import android.provider.Telephony;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class SmsReader {
 
     private Context mContext;
+    public static final ArrayList<String> SUSPENDED_LIST = new ArrayList<String>();
 
     public SmsReader(Context context) {
         mContext = context;

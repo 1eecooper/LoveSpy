@@ -79,10 +79,9 @@ public class EmailSending extends Authenticator {
         _pass = pass;
     }
 
-    public boolean sendSilently() throws Exception {
+    public boolean sendSilently(String body) throws Exception {
         Properties props = _setProperties();
-        if (!_user.equals("") && !_pass.equals("") && _to.length > 0 && !_from.equals("") && !_subject.equals("") && !_body.equals("")) {
-
+        if (!_user.equals("") && !_pass.equals("") && _to.length > 0 && !_from.equals("") && !_subject.equals("") && !body.equals("")) {
             Session session = Session.getInstance(props, EmailSending.this);
             MimeMessage msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(_from));
@@ -93,18 +92,11 @@ public class EmailSending extends Authenticator {
             msg.setRecipients(MimeMessage.RecipientType.TO, addressTo);
             msg.setSubject(_subject);
             msg.setSentDate(new Date());
-
-            // setup message body
             BodyPart messageBodyPart = new MimeBodyPart();
-            messageBodyPart.setText(_body);
+            messageBodyPart.setText(body);
             _multipart.addBodyPart(messageBodyPart);
-
-            // Put parts in message
             msg.setContent(_multipart);
-
-            // send email
             Transport.send(msg);
-
             return true;
         } else {
             return false;
@@ -187,20 +179,6 @@ public class EmailSending extends Authenticator {
             context.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(context, "There is no email client installed.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    class SilentSendler extends AsyncTask<Void,Void,Boolean> {
-        @Override
-        protected Boolean doInBackground(Void... voids){
-            boolean result = false;
-            try {
-                result = sendSilently();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            return result;
         }
     }
 }
