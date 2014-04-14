@@ -1,4 +1,4 @@
-package com.example.skyspy.app.sms;
+package com.example.lovespy.app.sms;
 
 import android.content.Context;
 import android.database.Cursor;

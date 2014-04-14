@@ -1,11 +1,11 @@
-package com.example.skyspy.app.network;
+package com.example.lovespy.app.network;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
-import com.example.skyspy.app.email.EmailHelper;
+import com.example.lovespy.app.email.EmailHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;

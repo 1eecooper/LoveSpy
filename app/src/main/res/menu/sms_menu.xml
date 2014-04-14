@@ -7,5 +7,11 @@
     <item android:id="@+id/send_message_silently"
         android:title="@string/send_message_silently"
         android:showAsAction="never"/>
+    <item android:id="@+id/start_service"
+        android:title="@string/start_service"
+        android:showAsAction="never"/>
+    <item android:id="@+id/settings"
+        android:title="@string/settings"
+        android:showAsAction="never"/>
 
 </menu>

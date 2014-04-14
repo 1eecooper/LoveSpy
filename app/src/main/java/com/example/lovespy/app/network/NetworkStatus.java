@@ -1,4 +1,4 @@
-package com.example.skyspy.app.network;
+package com.example.lovespy.app.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

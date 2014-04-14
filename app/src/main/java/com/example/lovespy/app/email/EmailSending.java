@@ -1,4 +1,4 @@
-package com.example.skyspy.app.email;
+package com.example.lovespy.app.email;
 
 import android.content.Context;
 import android.content.Intent;
