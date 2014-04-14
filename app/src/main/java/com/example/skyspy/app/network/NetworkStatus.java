@@ -9,7 +9,6 @@ public class NetworkStatus {
     private static NetworkStatus instance = new NetworkStatus();
     static Context mContext;
     ConnectivityManager connectivityManager;
-    NetworkInfo wifiInfo, mobileInfo;
     boolean connected = false;
 
     public static NetworkStatus getInstance(Context ctx) {

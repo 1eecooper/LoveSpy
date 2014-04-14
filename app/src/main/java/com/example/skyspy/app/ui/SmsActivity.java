@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.skyspy.app.R;
@@ -79,9 +78,9 @@ public class SmsActivity extends Activity{
         try {
             if (NetworkStatus.getInstance(this).isOnline()) {
                 if (mEmailSending.sendSilently(mLetter)) {
-                    runToastOnUiThread("Email was sent successfully.", Toast.LENGTH_LONG);
+                    runToastOnUiThread("Letter was sent successfully.", Toast.LENGTH_LONG);
                 } else {
-                    runToastOnUiThread("Email was not sent.", Toast.LENGTH_LONG);
+                    runToastOnUiThread("Letter was not sent.", Toast.LENGTH_LONG);
                 }
             } else {
                 mSuspendedLetterList.add(mLetter);
