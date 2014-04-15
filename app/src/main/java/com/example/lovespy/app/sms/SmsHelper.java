@@ -20,18 +20,23 @@ public class SmsHelper {
     public static final String FAILED = "FAILED";
     public static final String QUEUED = "QUEUED";
 
-    public static String removeNewLine(String str){
+    private Context mContext;
+    public SmsHelper(Context context) {
+        mContext = context;
+    }
+
+    public String removeNewLine(String str){
         str = str.replace("\n"," ");
         return str;
     }
 
-    public static String convertDate(Long timeMs) {
+    public String convertDate(Long timeMs) {
         Date date = new Date(timeMs);
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         return df.format(date);
     }
 
-    public static String getSmsTypeName(Integer type) {
+    public String getSmsTypeName(Integer type) {
         String str = "";
         if (type == Telephony.TextBasedSmsColumns.MESSAGE_TYPE_ALL) {
             str = ALL;
@@ -51,19 +56,19 @@ public class SmsHelper {
         return str;
     }
 
-    public static String getNumber(String thread_id, Context context) {
+    public String getNumber(String thread_id) {
         String recipient_id = null;
         String number = null;
         Uri convUri = Uri.parse("content://mms-sms/conversations?simple=true");
         String[] projection = new String[] {Telephony.Threads.RECIPIENT_IDS};
-        Cursor cur = context.getContentResolver().query(convUri, projection, "_id = "+thread_id, null, null);
+        Cursor cur = mContext.getContentResolver().query(convUri, projection, "_id = "+thread_id, null, null);
         if (cur.moveToNext()) {
             recipient_id = cur.getString(cur.getColumnIndexOrThrow("recipient_ids"));
         }
         cur.close();
         if (recipient_id != null) {
             Uri addrUri = Uri.parse("content://mms-sms/canonical-addresses");
-            cur = context.getContentResolver().query(addrUri, null, "_id = " + recipient_id, null, null);
+            cur = mContext.getContentResolver().query(addrUri, null, "_id = " + recipient_id, null, null);
             if (cur.moveToNext()) {
                 number = cur.getString(cur.getColumnIndexOrThrow("address"));
             }
@@ -72,11 +77,11 @@ public class SmsHelper {
         return number;
     }
 
-    public static String getContactName(String address, Context context) {
+    public String getContactName(String address) {
         String name = null;
         Uri peopleUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(address));
         String[] projection = new String[] { ContactsContract.PhoneLookup.DISPLAY_NAME };
-        Cursor cur = context.getContentResolver().query(peopleUri, projection, null, null, null);
+        Cursor cur = mContext.getContentResolver().query(peopleUri, projection, null, null, null);
         if (cur.getCount() > 0) {
             cur.moveToFirst();
             name = cur.getString(cur.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));

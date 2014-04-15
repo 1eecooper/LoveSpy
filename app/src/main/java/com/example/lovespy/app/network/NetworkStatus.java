@@ -7,9 +7,9 @@ import android.net.NetworkInfo;
 public class NetworkStatus {
 
     private static NetworkStatus instance = new NetworkStatus();
-    static Context mContext;
-    ConnectivityManager connectivityManager;
-    boolean connected = false;
+    private static Context mContext;
+    private ConnectivityManager connectivityManager;
+    private boolean connected = false;
 
     public static NetworkStatus getInstance(Context ctx) {
         mContext = ctx;

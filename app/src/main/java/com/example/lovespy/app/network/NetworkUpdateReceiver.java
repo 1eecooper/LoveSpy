@@ -15,15 +15,16 @@ public class NetworkUpdateReceiver extends BroadcastReceiver {
     private static ArrayList<String> mList;
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
         if (NetworkStatus.getInstance(context).isOnline()) {
             if (mList != null && mList.size() != 0) {
                 new AsyncTask<Void,Void,Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
+                        EmailHelper emailHelper = new EmailHelper(context);
                         Iterator<String> iter = mList.iterator();
                         while (iter.hasNext()) {
-                            boolean sending = EmailHelper.sendEmailSilently(iter.next());
+                            boolean sending = emailHelper.sendEmailSilently(iter.next());
                             if (sending == true) {
                                 iter.remove();
                             }
